@@ -558,11 +558,30 @@
         // ----- دالة نطق -----
         function speak(text) {
             try {
+                if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) {
+                    showToast('🔇 المتصفح لا يدعم ميزة الصوت');
+                    return;
+                }
+
                 window.speechSynthesis.cancel();
-                const u = new SpeechSynthesisUtterance(text);
-                u.lang = 'ar-SA'; u.rate = 0.9;
-                window.speechSynthesis.speak(u);
-            } catch(e) {}
+                let utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ar-SA'; // يمكن تغييره إلى 'ar-EG' إذا أردت
+                utterance.rate = 0.9;
+                utterance.volume = 1;
+
+                const voices = window.speechSynthesis.getVoices();
+                if (voices && voices.length) {
+                    const arabicVoice = voices.find(v => /ar(-|_)?(SA|EG|AE|LY|MA|DZ|TN|JO|LB)/i.test(v.lang)) || voices.find(v => v.lang.startsWith('ar'));
+                    if (arabicVoice) {
+                        utterance.voice = arabicVoice;
+                    }
+                }
+
+                utterance.onerror = () => showToast('❌ حدث خطأ في تشغيل الصوت');
+                window.speechSynthesis.speak(utterance);
+            } catch (e) {
+                showToast('❌ خطأ في ميزة الصوت');
+            }
         }
         
         function showToast(msg) {
