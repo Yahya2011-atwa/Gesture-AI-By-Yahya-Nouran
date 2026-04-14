@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>✨ Gesture Trainer Pro · إيماءات ثنائية فائقة الدقة</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+            background: linear-gradient(145deg, #0b081a 0%, #1a1744 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .app-container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 14px;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            padding: 22px 0 18px;
+            background: rgba(20, 15, 45, 0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 40px;
+            margin-bottom: 18px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #ffe77a, #ffb347, #ff6b8b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .badge {
+            background: rgba(255,215,0,0.15);
+            padding: 4px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            margin-top: 6px;
+            display: inline-block;
+        }
+
+        .camera-section {
+            background: rgba(0, 0, 0, 0.45);
+            border-radius: 36px;
+            padding: 14px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(8px);
+        }
+
+        .camera-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: #03010a;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+
+        #videoElement {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scaleX(-1);
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #gestureCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* hands count indicator */
+        .hands-badge {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            background: rgba(10,5,20,0.8);
+            backdrop-filter: blur(4px);
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-weight: bold;
+            border-left: 4px solid #ffd966;
+            z-index: 20;
+            font-size: 1rem;
+            pointer-events: none;
+            box-shadow: 0 2px 8px black;
+        }
+
+        .camera-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 8px;
+            border: none;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        }
+
+        .btn:active { transform: scale(0.96); }
+        .btn-primary { background: linear-gradient(145deg, #f9d423, #ff8c00); color: #13111c; }
+        .btn-danger { background: linear-gradient(145deg, #ff4d4d, #b30000); color: white; }
+        .btn-success { background: linear-gradient(145deg, #00e676, #009624); color: white; }
+
+        .gestures-section {
+            background: rgba(20, 12, 40, 0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 36px;
+            padding: 22px 16px;
+            border: 1px solid #3e3a5a;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .gestures-list { max-height: 340px; overflow-y: auto; padding-right: 4px; }
+        .gesture-item {
+            background: rgba(255,255,255,0.08);
+            border-radius: 28px;
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .gesture-name { font-weight: bold; font-size: 1.2rem; color: #ffdb7e; }
+        .gesture-command { font-size: 0.9rem; color: #bfbfe0; margin-top: 4px; }
+
+        .gesture-actions { display: flex; gap: 8px; }
+        .icon-btn {
+            background: rgba(255,255,240,0.12);
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 40px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: 0.15s;
+            backdrop-filter: blur(4px);
+        }
+        .icon-btn.test { background: #ffc107; color: #0b0b1a; }
+        .icon-btn.delete { background: #e53935; color: white; }
+
+        .modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
+            z-index: 1000; display: flex; align-items: center; justify-content: center;
+            visibility: hidden; opacity: 0; transition: 0.25s;
+        }
+        .modal.active { visibility: visible; opacity: 1; }
+        .modal-content {
+            background: #1e1945; border-radius: 48px; padding: 28px 22px;
+            width: 90%; max-width: 360px; text-align: center;
+            border: 1px solid #b8860b;
+        }
+        .modal-content input {
+            width: 100%; padding: 14px; margin: 14px 0; border: none;
+            border-radius: 60px; background: #2a234e; color: white;
+            text-align: center; font-size: 1rem;
+        }
+        .recording-status { font-size: 1.8rem; margin: 20px 0; }
+        .countdown { font-size: 4rem; font-weight: bold; color: #ffd966; }
+
+        .match-indicator {
+            position: absolute; bottom: 22px; left: 16px; right: 16px;
+            background: rgba(10,5,22,0.9); backdrop-filter: blur(8px);
+            border-radius: 40px; padding: 14px; text-align: center;
+            font-weight: bold; z-index: 50; border: 1px solid gold;
+        }
+
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #1e1a3b; color: #ffd966; padding: 14px 28px;
+            border-radius: 60px; z-index: 1200; font-weight: bold;
+            box-shadow: 0 6px 20px black;
+        }
+
+        .empty-state { text-align: center; padding: 40px; color: #aaa; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header">
+        <h1>✋🏽🤚🏽 Gesture AI</h1>
+        <div style="font-size: 0.95rem; color: #f5e8a1; margin-top: 6px;">Made By Yahya &amp; Nouran Mohammad</div>
+        <div class="badge">⚡ 35+ نقطة · تتبع مزدوج · اكتشاف متعدد</div>
+    </div>
+    <div class="camera-section">
+        <div class="camera-wrapper">
+            <video id="videoElement" autoplay playsinline muted></video>
+            <canvas id="gestureCanvas"></canvas>
+            <div id="handsCountBadge" class="hands-badge">👐 0 يد</div>
+        </div>
+        <div class="camera-controls">
+            <button class="btn btn-primary" id="addGestureBtn">➕ إيماءة جديدة</button>
+            <button class="btn btn-danger" id="clearAllBtn">🗑️ حذف الكل</button>
+        </div>
+        <div id="matchIndicator" class="match-indicator" style="display: none;"></div>
+    </div>
+
+    <div class="gestures-section">
+        <div class="section-title">
+            <span>📚 الإيماءات المحفوظة</span>
+            <span id="gestureCount" style="font-size:0.9rem;">(0)</span>
+        </div>
+        <div id="gesturesList" class="gestures-list">
+            <div class="empty-state">✨ اضغط + لإضافة أول إيماءة</div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="addModal" class="modal">
+    <div class="modal-content">
+        <h3>✍️ إيماءة جديدة</h3>
+        <input type="text" id="gestureName" placeholder="اسم الإيماءة" value="">
+        <input type="text" id="gestureCommand" placeholder="النطق (أمر)" value="">
+        <div id="recordingArea">
+            <div class="recording-status">👋 أظهر الإيماءة</div>
+            <button class="btn btn-primary" id="startRecordingBtn">🎬 ابدأ التسجيل</button>
+        </div>
+        <div id="countdownArea" style="display: none;">
+            <div class="countdown" id="countdownNumber">3</div>
+            <p>ثبّت يدك الآن...</p>
+        </div>
+        <button class="btn btn-danger" id="closeModalBtn" style="margin-top: 16px;">إلغاء</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+
+<script>
+    (function(){
+        "use strict";
+
+        // ---------- التخزين ----------
+        let gestures = []; 
+        
+        // state
+        let hands = null;
+        let canvasElement = null;
+        let canvasCtx = null;
+        let animationId = null;
+        let lastDetectedResults = null;   // تخزين نتائج كلتا اليدين
+        let lastGestureMatch = null;
+        let matchTimeout = null;
+        let recognitionHistory = [];
+        const matchThreshold = 0.72;
+        let detectionWorker = null;
+        let workerReady = false;
+        const frameConfirmationCount = 3;
+        const dynamicMargin = 0.14;
+        
+        // DOM
+        const videoEl = document.getElementById('videoElement');
+        const canvasEl = document.getElementById('gestureCanvas');
+        const gesturesListDiv = document.getElementById('gesturesList');
+        const gestureCountSpan = document.getElementById('gestureCount');
+        const addGestureBtn = document.getElementById('addGestureBtn');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const addModal = document.getElementById('addModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const startRecordingBtn = document.getElementById('startRecordingBtn');
+        const recordingArea = document.getElementById('recordingArea');
+        const countdownArea = document.getElementById('countdownArea');
+        const countdownNumber = document.getElementById('countdownNumber');
+        const gestureNameInput = document.getElementById('gestureName');
+        const gestureCommandInput = document.getElementById('gestureCommand');
+        const matchIndicator = document.getElementById('matchIndicator');
+        const handsCountBadge = document.getElementById('handsCountBadge');
+        
+        // --- دوال التخزين ---
+        function loadGestures() {
+            const saved = localStorage.getItem('proGestures_v2');
+            if (saved) { try { gestures = JSON.parse(saved); } catch(e){ gestures = []; } }
+            renderGesturesList();
+            if (workerReady) {
+                detectionWorker.postMessage({ type: 'init', gestures });
+            }
+        }
+        function saveGestures() {
+            localStorage.setItem('proGestures_v2', JSON.stringify(gestures));
+            renderGesturesList();
+            if (workerReady) {
+                detectionWorker.postMessage({ type: 'init', gestures });
+            }
+        }
+        
+        function createDetectionWorker() {
+            if (!window.Worker) { return null; }
+            const workerCode = `
+                let gestures = [];
+                const requiredMargin = ${dynamicMargin};
+
+                function normalizeLandmarks(landmarks) {
+                    if (!landmarks || landmarks.length < 21) return null;
+                    const base = landmarks[0];
+                    const depthBase = base.z || 0;
+                    const scale = Math.max(0.0001, Math.hypot(landmarks[9].x - base.x, landmarks[9].y - base.y, (landmarks[9].z || 0) - depthBase));
+                    return landmarks.map(p => ({
+                        x: (p.x - base.x) / scale,
+                        y: (p.y - base.y) / scale,
+                        z: ((p.z || 0) - depthBase) / scale
+                    }));
+                }
+
+                function extractHandFeatures(landmarks) {
+                    if (!landmarks || landmarks.length < 21) return null;
+                    const angles = [];
+                    const triplets = [
+                        [0,1,2],[1,2,3],[2,3,4],
+                        [0,5,6],[5,6,7],[6,7,8],
+                        [0,9,10],[9,10,11],[10,11,12],
+                        [0,13,14],[13,14,15],[14,15,16],
+                        [0,17,18],[17,18,19],[18,19,20],
+                        [1,5,9],[5,9,13],[9,13,17],
+                        [2,6,10],[6,10,14],[10,14,18],
+                        [4,8,12],[8,12,16],[12,16,20]
+                    ];
+                    triplets.forEach(([a,b,c]) => {
+                        const p1 = landmarks[a];
+                        const p2 = landmarks[b];
+                        const p3 = landmarks[c];
+                        const v1 = { x: p1.x - p2.x, y: p1.y - p2.y, z: (p1.z || 0) - (p2.z || 0) };
+                        const v2 = { x: p3.x - p2.x, y: p3.y - p2.y, z: (p3.z || 0) - (p2.z || 0) };
+                        const dot = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+                        const mag = Math.max(0.0001, Math.hypot(v1.x, v1.y, v1.z) * Math.hypot(v2.x, v2.y, v2.z));
+                        const cos = Math.min(1, Math.max(-1, dot / mag));
+                        angles.push(Math.acos(cos));
+                    });
+                    const ratios = [];
+                    const pairs = [
+                        [4,8],[8,12],[12,16],[16,20],
+                        [4,0],[8,0],[12,0],[16,0],[20,0],
+                        [4,12],[8,16],[12,20]
+                    ];
+                    const wrist = landmarks[0];
+                    const handSize = Math.max(0.0001, Math.hypot(landmarks[9].x - wrist.x, landmarks[9].y - wrist.y, (landmarks[9].z || 0) - (wrist.z || 0)));
+                    pairs.forEach(([a,b]) => {
+                        ratios.push(Math.hypot(
+                            landmarks[a].x - landmarks[b].x,
+                            landmarks[a].y - landmarks[b].y,
+                            (landmarks[a].z || 0) - (landmarks[b].z || 0)
+                        ) / handSize);
+                    });
+                    return { angles, ratios };
+                }
+
+                function computeGestureFingerprint(landmarks) {
+                    const normalized = normalizeLandmarks(landmarks);
+                    const features = extractHandFeatures(landmarks);
+                    return normalized && features ? { normalized, angles: features.angles, ratios: features.ratios } : null;
+                }
+
+                function compareFingerprints(fp1, fp2) {
+                    if (!fp1 || !fp2) return 0;
+                    const len = Math.min(fp1.normalized.length, fp2.normalized.length);
+                    let normDiff = 0;
+                    for (let i = 0; i < len; i++) {
+                        const dx = fp1.normalized[i].x - fp2.normalized[i].x;
+                        const dy = fp1.normalized[i].y - fp2.normalized[i].y;
+                        const dz = (fp1.normalized[i].z || 0) - (fp2.normalized[i].z || 0);
+                        normDiff += Math.sqrt(dx*dx + dy*dy + dz*dz);
+                    }
+                    normDiff = Math.max(0, 1 - normDiff / len / 1.6);
+
+                    let angleSim = 0;
+                    const lenA = Math.min(fp1.angles.length, fp2.angles.length);
+                    for (let i = 0; i < lenA; i++) {
+                        angleSim += 1 - Math.min(1, Math.abs(fp1.angles[i] - fp2.angles[i]) / Math.PI);
+                    }
+                    angleSim = angleSim / lenA;
+
+                    let ratioSim = 0;
+                    const lenR = Math.min(fp1.ratios.length, fp2.ratios.length);
+                    for (let i = 0; i < lenR; i++) {
+                        ratioSim += 1 - Math.min(1, Math.abs(fp1.ratios[i] - fp2.ratios[i]) / 0.4);
+                    }
+                    ratioSim = ratioSim / lenR;
+
+                    return Math.max(0, Math.min(1, normDiff * 0.55 + angleSim * 0.35 + ratioSim * 0.1));
+                }
+
+                function updateGestures(list) {
+                    gestures.length = 0;
+                    (list || []).forEach(g => {
+                        const fingerprint = g.fingerprint || computeGestureFingerprint(g.landmarks);
+                        gestures.push({ id: g.id, name: g.name, command: g.command, landmarks: g.landmarks, fingerprint });
+                    });
+                }
+
+                function findBestMatch(multiHandLandmarks, threshold) {
+                    if (!multiHandLandmarks || !multiHandLandmarks.length || !gestures.length) return null;
+                    let bestGesture = null;
+                    let bestScore = threshold;
+                    let secondBestScore = 0;
+                    for (const landmarks of multiHandLandmarks) {
+                        const fingerprint = computeGestureFingerprint(landmarks);
+                        if (!fingerprint) continue;
+                        for (const g of gestures) {
+                            const score = compareFingerprints(fingerprint, g.fingerprint);
+                            if (score > bestScore) {
+                                secondBestScore = bestScore;
+                                bestScore = score;
+                                bestGesture = g;
+                            } else if (score > secondBestScore) {
+                                secondBestScore = score;
+                            }
+                        }
+                    }
+                    if (bestGesture && bestScore - secondBestScore >= requiredMargin) {
+                        return { gestureId: bestGesture.id, score: bestScore };
+                    }
+                    return null;
+                }
+
+                self.onmessage = function(event) {
+                    const data = event.data;
+                    if (data.type === 'init') {
+                        updateGestures(data.gestures || []);
+                        self.postMessage({ type: 'ready' });
+                    } else if (data.type === 'match') {
+                        const result = findBestMatch(data.multiHandLandmarks, data.threshold);
+                        self.postMessage({ type: 'matchResult', result });
+                    }
+                };
+            `;
+            const blob = new Blob([workerCode], { type: 'application/javascript' });
+            const worker = new Worker(URL.createObjectURL(blob));
+            worker.onmessage = function(event) {
+                if (event.data.type === 'ready') {
+                    workerReady = true;
+                    if (gestures.length) {
+                        detectionWorker.postMessage({ type: 'init', gestures });
+                    }
+                } else if (event.data.type === 'matchResult') {
+                    handleWorkerMatch(event.data.result);
+                }
+            };
+            return worker;
+        }
+
+        function initDetectionWorker() {
+            detectionWorker = createDetectionWorker();
+            if (detectionWorker && workerReady === false) {
+                detectionWorker.postMessage({ type: 'init', gestures });
+            }
+        }
+
+        function handleWorkerMatch(result) {
+            if (!result || !result.gestureId) {
+                recognitionHistory = [];
+                return;
+            }
+            recognitionHistory.push(result.gestureId);
+            if (recognitionHistory.length > frameConfirmationCount) {
+                recognitionHistory.shift();
+            }
+            const stable = recognitionHistory.length === frameConfirmationCount && recognitionHistory.every(id => id === result.gestureId);
+            if (!stable) return;
+            const matched = gestures.find(g => g.id === result.gestureId);
+            if (matched && matched.id !== lastGestureMatch) {
+                lastGestureMatch = matched.id;
+                speak(matched.command);
+                showMatchFeedback(matched);
+            }
+        }
+
+        function matchHandsInWorker(multiHandLandmarks) {
+            if (!detectionWorker || !workerReady) {
+                const matched = recognizeFromMultipleHands(multiHandLandmarks, matchThreshold);
+                if (!matched) { recognitionHistory = []; return; }
+                handleWorkerMatch({ gestureId: matched.id, score: 1 });
+                return;
+            }
+            detectionWorker.postMessage({ type: 'match', multiHandLandmarks, threshold: matchThreshold });
+        }
+
+        function renderGesturesList() {
+            if (gestures.length === 0) {
+                gesturesListDiv.innerHTML = '<div class="empty-state">✨ لا توجد إيماءات</div>';
+                gestureCountSpan.innerText = '(0)';
+                return;
+            }
+            gestureCountSpan.innerText = `(${gestures.length})`;
+            gesturesListDiv.innerHTML = gestures.map(g => `
+                <div class="gesture-item">
+                    <div class="gesture-info">
+                        <div class="gesture-name">✋ ${escapeHtml(g.name)}</div>
+                        <div class="gesture-command">🔊 "${escapeHtml(g.command)}"</div>
+                    </div>
+                    <div class="gesture-actions">
+                        <button class="icon-btn test" data-testid="${g.id}">▶️</button>
+                        <button class="icon-btn delete" data-delid="${g.id}">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.querySelectorAll('[data-testid]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.dataset.testid;
+                    const gesture = gestures.find(g => g.id === id);
+                    if(gesture) { speak(gesture.command); showMatchFeedback(gesture, true); }
+                });
+            });
+            document.querySelectorAll('[data-delid]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.dataset.delid;
+                    gestures = gestures.filter(g => g.id !== id);
+                    saveGestures();
+                    showToast('🗑️ تم الحذف');
+                });
+            });
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // ----- دالة نطق -----
+        function speak(text) {
+            try {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'ar-SA'; u.rate = 0.9;
+                window.speechSynthesis.speak(u);
+            } catch(e) {}
+        }
+        
+        function showToast(msg) {
+            const t = document.createElement('div'); t.className = 'toast';
+            t.innerText = msg; document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2000);
+        }
+        
+        function showMatchFeedback(gesture, forceShow = false) {
+            matchIndicator.style.display = 'block';
+            matchIndicator.innerHTML = `🎯 ${gesture.name}<br>🔊 "${gesture.command}"`;
+            matchIndicator.style.background = 'rgba(20,120,20,0.9)';
+            if (matchTimeout) clearTimeout(matchTimeout);
+            matchTimeout = setTimeout(() => {
+                matchIndicator.style.display = 'none';
+                lastGestureMatch = null;
+            }, 2200);
+        }
+        
+        // ---------- مقارنة landmarks (دقة عالية) ----------
+        function normalizeLandmarks(landmarks) {
+            if (!landmarks || landmarks.length < 21) return null;
+            const base = landmarks[0];
+            const depthBase = base.z || 0;
+            const scale = Math.max(0.0001, Math.hypot(landmarks[9].x - base.x, landmarks[9].y - base.y, (landmarks[9].z || 0) - depthBase));
+            return landmarks.map(p => ({
+                x: (p.x - base.x) / scale,
+                y: (p.y - base.y) / scale,
+                z: ((p.z || 0) - depthBase) / scale
+            }));
+        }
+
+        function extractHandFeatures(landmarks) {
+            if (!landmarks || landmarks.length < 21) return null;
+            const angles = [];
+            const triplets = [
+                [0,1,2],[1,2,3],[2,3,4],
+                [0,5,6],[5,6,7],[6,7,8],
+                [0,9,10],[9,10,11],[10,11,12],
+                [0,13,14],[13,14,15],[14,15,16],
+                [0,17,18],[17,18,19],[18,19,20],
+                [1,5,9],[5,9,13],[9,13,17],
+                [2,6,10],[6,10,14],[10,14,18],
+                [4,8,12],[8,12,16],[12,16,20]
+            ];
+            triplets.forEach(([a,b,c]) => {
+                const p1 = landmarks[a];
+                const p2 = landmarks[b];
+                const p3 = landmarks[c];
+                const v1 = { x: p1.x - p2.x, y: p1.y - p2.y, z: (p1.z || 0) - (p2.z || 0) };
+                const v2 = { x: p3.x - p2.x, y: p3.y - p2.y, z: (p3.z || 0) - (p2.z || 0) };
+                const dot = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+                const mag = Math.max(0.0001, Math.hypot(v1.x, v1.y, v1.z) * Math.hypot(v2.x, v2.y, v2.z));
+                const cos = Math.min(1, Math.max(-1, dot / mag));
+                angles.push(Math.acos(cos));
+            });
+            const ratios = [];
+            const pairs = [
+                [4,8],[8,12],[12,16],[16,20],
+                [4,0],[8,0],[12,0],[16,0],[20,0],
+                [4,12],[8,16],[12,20]
+            ];
+            const wrist = landmarks[0];
+            const handSize = Math.max(0.0001, Math.hypot(landmarks[9].x - wrist.x, landmarks[9].y - wrist.y, (landmarks[9].z || 0) - (wrist.z || 0)));
+            pairs.forEach(([a,b]) => {
+                ratios.push(Math.hypot(
+                    landmarks[a].x - landmarks[b].x,
+                    landmarks[a].y - landmarks[b].y,
+                    (landmarks[a].z || 0) - (landmarks[b].z || 0)
+                ) / handSize);
+            });
+            return { angles, ratios };
+        }
+
+        function computeGestureFingerprint(landmarks) {
+            const normalized = normalizeLandmarks(landmarks);
+            const features = extractHandFeatures(landmarks);
+            return normalized && features ? {
+                normalized,
+                angles: features.angles,
+                ratios: features.ratios
+            } : null;
+        }
+
+        function compareFingerprints(fp1, fp2) {
+            if (!fp1 || !fp2) return 0;
+            const len = Math.min(fp1.normalized.length, fp2.normalized.length);
+            let normDiff = 0;
+            for (let i = 0; i < len; i++) {
+                const dx = fp1.normalized[i].x - fp2.normalized[i].x;
+                const dy = fp1.normalized[i].y - fp2.normalized[i].y;
+                const dz = (fp1.normalized[i].z || 0) - (fp2.normalized[i].z || 0);
+                normDiff += Math.sqrt(dx*dx + dy*dy + dz*dz);
+            }
+            normDiff = Math.max(0, 1 - normDiff / len / 1.6);
+
+            let angleSim = 0;
+            const lenA = Math.min(fp1.angles.length, fp2.angles.length);
+            for (let i = 0; i < lenA; i++) {
+                angleSim += 1 - Math.min(1, Math.abs(fp1.angles[i] - fp2.angles[i]) / Math.PI);
+            }
+            angleSim = angleSim / lenA;
+
+            let ratioSim = 0;
+            const lenR = Math.min(fp1.ratios.length, fp2.ratios.length);
+            for (let i = 0; i < lenR; i++) {
+                ratioSim += 1 - Math.min(1, Math.abs(fp1.ratios[i] - fp2.ratios[i]) / 0.4);
+            }
+            ratioSim = ratioSim / lenR;
+
+            return Math.max(0, Math.min(1, normDiff * 0.55 + angleSim * 0.35 + ratioSim * 0.1));
+        }
+
+        function compareLandmarks(lm1, lm2) {
+            const fp1 = computeGestureFingerprint(lm1);
+            const fp2 = computeGestureFingerprint(lm2);
+            return compareFingerprints(fp1, fp2);
+        }
+
+        // التعرف على الإيماءة من أي من اليدين (ندعم كلتا اليدين)
+        function recognizeFromMultipleHands(multiHandLandmarks, threshold = matchThreshold) {
+            if (!multiHandLandmarks || gestures.length === 0) return null;
+            let bestGesture = null;
+            let bestScore = threshold;
+            let secondBestScore = 0;
+            const requiredMargin = dynamicMargin;
+            
+            for (const handLandmarks of multiHandLandmarks) {
+                const currentFingerprint = computeGestureFingerprint(handLandmarks);
+                if (!currentFingerprint) continue;
+                for (const g of gestures) {
+                    if (!g.fingerprint) {
+                        g.fingerprint = computeGestureFingerprint(g.landmarks);
+                    }
+                    const matchScore = compareFingerprints(currentFingerprint, g.fingerprint);
+                    if (matchScore > bestScore) {
+                        secondBestScore = bestScore;
+                        bestScore = matchScore;
+                        bestGesture = g;
+                    } else if (matchScore > secondBestScore) {
+                        secondBestScore = matchScore;
+                    }
+                }
+            }
+            if (bestGesture && bestScore - secondBestScore >= requiredMargin) {
+                return bestGesture;
+            }
+            return null;
+        }
+        
+        // ---------- تسجيل إيماءة (نأخذ أول يد ظاهرة) ----------
+        let countdownInterval = null;
+        function startRecording() {
+            if (!hands) { showToast("⚠️ انتظر التهيئة"); return; }
+            const name = gestureNameInput.value.trim();
+            const cmd = gestureCommandInput.value.trim();
+            if (!name || !cmd) { showToast("املأ الاسم والأمر"); return; }
+            
+            recordingArea.style.display = 'none';
+            countdownArea.style.display = 'block';
+            let count = 3;
+            countdownNumber.innerText = count;
+            
+            countdownInterval = setInterval(() => {
+                count--;
+                if (count >= 1) countdownNumber.innerText = count;
+                else if (count === 0) countdownNumber.innerText = '🎬';
+                else {
+                    clearInterval(countdownInterval);
+                    countdownArea.style.display = 'none';
+                    
+                    // استخدام آخر landmarks من يد واحدة (الأولى)
+                    if (lastDetectedResults && lastDetectedResults.multiHandLandmarks?.length > 0) {
+                        const firstHand = lastDetectedResults.multiHandLandmarks[0];
+                        const savedLandmarks = firstHand.map(l => ({ x: l.x, y: l.y, z: l.z || 0 }));
+                        const fingerprint = computeGestureFingerprint(savedLandmarks);
+                        const newGesture = {
+                            id: Date.now().toString(),
+                            name, command: cmd,
+                            landmarks: savedLandmarks,
+                            fingerprint: fingerprint
+                        };
+                        gestures.push(newGesture);
+                        saveGestures();
+                        showToast(`✅ تم حفظ "${name}"`);
+                        closeModal();
+                    } else {
+                        showToast("❌ لم تظهر يد، حاول مجدداً");
+                        recordingArea.style.display = 'block';
+                    }
+                }
+            }, 1000);
+        }
+        
+        function closeModal() {
+            addModal.classList.remove('active');
+            recordingArea.style.display = 'block';
+            countdownArea.style.display = 'none';
+            gestureNameInput.value = '';
+            gestureCommandInput.value = '';
+            if(countdownInterval) clearInterval(countdownInterval);
+        }
+        
+        // ---------- رسم اليد (21 نقطة + اتصالات) مع جودة التصاق عالية ----------
+        function drawHands(results) {
+            canvasCtx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+            if (!results || !results.multiHandLandmarks) return;
+            
+            const width = canvasEl.width;
+            const height = canvasEl.height;
+            
+            canvasCtx.save();
+            canvasCtx.scale(-1, 1);
+            canvasCtx.translate(-width, 0);
+            
+            const connections = [
+                [0,1],[1,2],[2,3],[3,4],        // thumb
+                [0,5],[5,6],[6,7],[7,8],        // index
+                [0,9],[9,10],[10,11],[11,12],   // middle
+                [0,13],[13,14],[14,15],[15,16], // ring
+                [0,17],[17,18],[18,19],[19,20]  // pinky
+            ];
+            
+            for (let h = 0; h < results.multiHandLandmarks.length; h++) {
+                const landmarks = results.multiHandLandmarks[h];
+                
+                // رسم الوصلات بلون مختلف لكل يد
+                canvasCtx.beginPath();
+                canvasCtx.strokeStyle = h === 0 ? '#FFD966' : '#6ee7b7';
+                canvasCtx.lineWidth = 4;
+                connections.forEach(conn => {
+                    const p1 = landmarks[conn[0]];
+                    const p2 = landmarks[conn[1]];
+                    canvasCtx.beginPath();
+                    canvasCtx.moveTo(p1.x * width, p1.y * height);
+                    canvasCtx.lineTo(p2.x * width, p2.y * height);
+                    canvasCtx.stroke();
+                });
+                
+                const extraPoints = [
+                    [0,5],[5,9],[9,13],[13,17],
+                    [1,2],[2,3],[3,4],
+                    [6,7],[7,8],
+                    [10,11],[11,12],
+                    [14,15],[15,16],
+                    [18,19],[19,20],
+                    [0,9],[0,13],[0,17],[5,8],[9,12],[13,16]
+                ];
+                const bonusPoints = extraPoints.map(([a,b]) => ({
+                    x: (landmarks[a].x + landmarks[b].x) / 2,
+                    y: (landmarks[a].y + landmarks[b].y) / 2
+                }));
+                const palmCenter = {
+                    x: (landmarks[0].x + landmarks[5].x + landmarks[9].x + landmarks[13].x + landmarks[17].x) / 5,
+                    y: (landmarks[0].y + landmarks[5].y + landmarks[9].y + landmarks[13].y + landmarks[17].y) / 5
+                };
+                const allPoints = [...landmarks, palmCenter, ...bonusPoints];
+
+                allPoints.forEach((point, i) => {
+                    const x = point.x * width;
+                    const y = point.y * height;
+                    canvasCtx.beginPath();
+                    canvasCtx.arc(x, y, i < landmarks.length ? (i===0||i===4||i===8||i===12||i===16||i===20 ? 7 : 5) : 3, 0, 2*Math.PI);
+                    const gradient = canvasCtx.createRadialGradient(x-2, y-2, 1, x, y, i < landmarks.length ? 8 : 5);
+                    gradient.addColorStop(0, i < landmarks.length ? '#FFB347' : '#8b5cf6');
+                    gradient.addColorStop(1, i < landmarks.length ? '#D00000' : '#6d28d9');
+                    canvasCtx.fillStyle = gradient;
+                    canvasCtx.fill();
+                    canvasCtx.shadowBlur = i < landmarks.length ? 14 : 8;
+                    canvasCtx.shadowColor = i < landmarks.length ? '#ffbb33' : '#a78bfa';
+                    canvasCtx.strokeStyle = 'white';
+                    canvasCtx.lineWidth = i < landmarks.length ? 1.8 : 1.2;
+                    canvasCtx.stroke();
+                });
+            }
+            canvasCtx.restore();
+        }
+        
+        // ---------- MediaPipe مع maxNumHands=4 (اكتشاف اكتر من ايد) ----------
+        function setupMediaPipe() {
+            hands = new Hands({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}` });
+            hands.setOptions({
+                maxNumHands: 4,                     // يدعم حتى 4 أيدي
+                modelComplexity: 1,
+                minDetectionConfidence: 0.7,
+                minTrackingConfidence: 0.7
+            });
+            
+            hands.onResults((results) => {
+                lastDetectedResults = results;
+                const handCount = results.multiHandLandmarks?.length || 0;
+                handsCountBadge.innerText = `👐 ${handCount} ${handCount === 1 ? 'يد' : 'أيادي'}`;
+                if (handCount > 1) handsCountBadge.style.borderLeftColor = '#4caf50';
+                else handsCountBadge.style.borderLeftColor = '#ffd966';
+                
+                drawHands(results);
+                
+                // التعرف على الإيماءات من كل الأيدي عبر Web Worker
+                if (handCount > 0) {
+                    matchHandsInWorker(results.multiHandLandmarks);
+                } else {
+                    recognitionHistory = [];
+                    lastGestureMatch = null;
+                    if (matchIndicator.style.display !== 'none') {
+                        setTimeout(() => { if(matchIndicator) matchIndicator.style.display = 'none'; }, 800);
+                    }
+                }
+            });
+        }
+        
+        // --- الكاميرا ---
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "user", width: { ideal: 800 }, height: { ideal: 600 } } 
+                });
+                videoEl.srcObject = stream;
+                await videoEl.play();
+                return true;
+            } catch(e) { showToast("❌ فشل الوصول للكاميرا"); return false; }
+        }
+        
+        function resizeCanvas() {
+            const rect = document.querySelector('.camera-wrapper').getBoundingClientRect();
+            canvasEl.width = rect.width;
+            canvasEl.height = rect.height;
+        }
+        
+        async function processVideo() {
+            if (hands && videoEl && videoEl.readyState >= 2) {
+                try { await hands.send({ image: videoEl }); } catch(e) {}
+            }
+            animationId = requestAnimationFrame(processVideo);
+        }
+        
+        // --- حذف الكل ---
+        function clearAllGestures() {
+            if(confirm('مسح جميع الإيماءات؟')) { gestures = []; saveGestures(); showToast('🧹 تم المسح'); }
+        }
+        
+        // --- تهيئة ---
+        async function init() {
+            const camOk = await startCamera(); if(!camOk) return;
+            canvasCtx = canvasEl.getContext('2d');
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            setupMediaPipe();
+            initDetectionWorker();
+            processVideo();
+            loadGestures();
+
+            addGestureBtn.onclick = () => addModal.classList.add('active');
+            closeModalBtn.onclick = closeModal;
+            startRecordingBtn.onclick = startRecording;
+            clearAllBtn.onclick = clearAllGestures;
+            addModal.addEventListener('click', (e) => { if(e.target === addModal) closeModal(); });
+        }
+        
+        init();
+        
+        window.addEventListener('beforeunload', () => {
+            if(animationId) cancelAnimationFrame(animationId);
+            if(videoEl?.srcObject) videoEl.srcObject.getTracks().forEach(t=>t.stop());
+        });
+    })();
+</script>
+</body>
+</html>
