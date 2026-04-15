@@ -1,0 +1,16 @@
+{
+  "name": "Gesture AI",
+  "short_name": "Gesture AI",
+  "description": "Gesture AI - محرك التعرف على الإيماءات مع دعم الشاشة الرئيسية.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#070915",
+  "theme_color": "#070915",
+  "icons": [
+    {
+      "src": "Logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
