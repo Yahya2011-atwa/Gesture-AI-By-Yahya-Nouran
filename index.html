@@ -14,30 +14,56 @@
 
         body {
             font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-            background: linear-gradient(145deg, #0b081a 0%, #1a1744 100%);
+            background: radial-gradient(circle at top left, rgba(142, 88, 255, 0.18), transparent 24%),
+                        radial-gradient(circle at bottom right, rgba(0, 255, 214, 0.12), transparent 20%),
+                        linear-gradient(145deg, #070915 0%, #151b3b 100%);
             min-height: 100vh;
             color: white;
+            overflow-x: hidden;
         }
 
         .app-container {
-            max-width: 680px;
+            max-width: 720px;
             margin: 0 auto;
-            padding: 14px;
+            padding: 18px 16px 32px;
             min-height: 100vh;
         }
 
         .header {
             text-align: center;
-            padding: 22px 0 18px;
-            background: rgba(20, 15, 45, 0.6);
-            backdrop-filter: blur(12px);
-            border-radius: 40px;
-            margin-bottom: 18px;
-            border: 1px solid rgba(255, 215, 0, 0.2);
+            padding: 28px 24px 24px;
+            background: rgba(18, 18, 56, 0.48);
+            backdrop-filter: blur(28px);
+            border-radius: 50px;
+            margin-bottom: 26px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 0 22px 48px rgba(0,0,0,0.22);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top left, rgba(255,255,255,0.14), transparent 38%);
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .header .title-row {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
         }
 
         .header h1 {
-            font-size: 2rem;
+            font-size: 2.5rem;
+            margin-bottom: 4px;
             background: linear-gradient(135deg, #ffe77a, #ffb347, #ff6b8b);
             -webkit-background-clip: text;
             background-clip: text;
@@ -45,31 +71,54 @@
             letter-spacing: 1px;
         }
 
+        .subheader {
+            position: relative;
+            z-index: 1;
+            color: #e2dcff;
+            font-size: 1rem;
+            line-height: 1.8;
+            max-width: 780px;
+            margin: 0 auto;
+            opacity: 0.94;
+        }
+
         .badge {
-            background: rgba(255,215,0,0.15);
-            padding: 4px 16px;
-            border-radius: 40px;
-            font-size: 0.8rem;
+            position: relative;
+            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.11);
+            backdrop-filter: blur(18px);
+            padding: 10px 20px;
+            border-radius: 999px;
+            font-size: 0.85rem;
             margin-top: 6px;
-            display: inline-block;
+            color: #fff8d8;
+            border: 1px solid rgba(255,255,255,0.18);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
         }
 
         .camera-section {
-            background: rgba(0, 0, 0, 0.45);
-            border-radius: 36px;
-            padding: 14px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(8px);
+            background: rgba(12, 13, 39, 0.48);
+            border-radius: 44px;
+            padding: 22px;
+            margin-bottom: 26px;
+            backdrop-filter: blur(28px);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 24px 60px rgba(0,0,0,0.16);
         }
 
         .camera-wrapper {
             position: relative;
             width: 100%;
             aspect-ratio: 4/3;
-            background: #03010a;
-            border-radius: 24px;
+            background: rgba(18, 20, 58, 0.35);
+            border-radius: 32px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04), 0 16px 38px rgba(0,0,0,0.22);
         }
 
         #videoElement {
@@ -96,47 +145,51 @@
             position: absolute;
             top: 14px;
             right: 16px;
-            background: rgba(10,5,20,0.8);
-            backdrop-filter: blur(4px);
-            padding: 6px 16px;
-            border-radius: 40px;
+            background: rgba(10,5,20,0.9);
+            backdrop-filter: blur(6px);
+            padding: 8px 18px;
+            border-radius: 999px;
             font-weight: bold;
             border-left: 4px solid #ffd966;
             z-index: 20;
             font-size: 1rem;
             pointer-events: none;
-            box-shadow: 0 2px 8px black;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.35);
         }
 
         .camera-controls {
             display: flex;
-            gap: 10px;
-            margin-top: 14px;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 18px;
+            justify-content: center;
         }
 
         .btn {
             flex: 1;
-            padding: 14px 8px;
+            padding: 14px 12px;
             border: none;
             border-radius: 60px;
             font-size: 1rem;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.18);
         }
 
-        .btn:active { transform: scale(0.96); }
+        .btn:hover { transform: translateY(-1px); }
+        .btn:active { transform: scale(0.98); }
         .btn-primary { background: linear-gradient(145deg, #f9d423, #ff8c00); color: #13111c; }
+        .btn-secondary { background: rgba(255,255,255,0.08); color: #f8f4ff; border: 1px solid rgba(255,255,255,0.12); }
         .btn-danger { background: linear-gradient(145deg, #ff4d4d, #b30000); color: white; }
         .btn-success { background: linear-gradient(145deg, #00e676, #009624); color: white; }
 
         .gestures-section {
-            background: rgba(20, 12, 40, 0.7);
-            backdrop-filter: blur(12px);
+            background: rgba(20, 12, 40, 0.75);
+            backdrop-filter: blur(14px);
             border-radius: 36px;
-            padding: 22px 16px;
-            border: 1px solid #3e3a5a;
+            padding: 24px 18px;
+            border: 1px solid rgba(94, 84, 233, 0.16);
         }
 
         .section-title {
@@ -147,35 +200,49 @@
             gap: 10px;
         }
 
-        .gestures-list { max-height: 340px; overflow-y: auto; padding-right: 4px; }
         .gesture-item {
             background: rgba(255,255,255,0.08);
             border-radius: 28px;
-            padding: 14px 18px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
+            padding: 18px 20px;
+            margin-bottom: 12px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 14px;
             align-items: center;
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,0.08);
         }
 
-        .gesture-name { font-weight: bold; font-size: 1.2rem; color: #ffdb7e; }
-        .gesture-command { font-size: 0.9rem; color: #bfbfe0; margin-top: 4px; }
+        .gesture-info { min-width: 0; }
 
-        .gesture-actions { display: flex; gap: 8px; }
+        .gesture-name { font-weight: 700; font-size: 1.15rem; color: #ffd966; }
+        .gesture-command { font-size: 0.95rem; color: #d7d7ff; margin-top: 6px; }
+
+        .gesture-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+
+        .gestures-list {
+            max-height: 360px;
+            overflow-y: auto;
+            padding-right: 6px;
+            display: grid;
+            gap: 12px;
+        }
+
         .icon-btn {
-            background: rgba(255,255,240,0.12);
+            background: rgba(255,255,255,0.14);
             border: none;
             width: 48px;
             height: 48px;
-            border-radius: 40px;
-            font-size: 1.5rem;
+            border-radius: 16px;
+            font-size: 1.4rem;
             cursor: pointer;
-            transition: 0.15s;
-            backdrop-filter: blur(4px);
+            transition: transform 0.18s ease, background 0.18s ease;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.12);
         }
-        .icon-btn.test { background: #ffc107; color: #0b0b1a; }
-        .icon-btn.delete { background: #e53935; color: white; }
+        .icon-btn:hover { transform: translateY(-1px); }
+        .icon-btn.test { background: linear-gradient(145deg, #ffe082, #ffca28); color: #151515; }
+        .icon-btn.delete { background: linear-gradient(145deg, #ef5350, #d32f2f); color: white; }
 
         .modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
@@ -184,17 +251,78 @@
         }
         .modal.active { visibility: visible; opacity: 1; }
         .modal-content {
-            background: #1e1945; border-radius: 48px; padding: 28px 22px;
-            width: 90%; max-width: 360px; text-align: center;
-            border: 1px solid #b8860b;
+            background: rgba(16, 10, 46, 0.96);
+            border-radius: 36px;
+            padding: 28px 26px;
+            width: 92%; max-width: 440px;
+            text-align: center;
+            border: 1px solid rgba(153, 110, 255, 0.2);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.35);
         }
         .modal-content input {
-            width: 100%; padding: 14px; margin: 14px 0; border: none;
-            border-radius: 60px; background: #2a234e; color: white;
+            width: 100%; padding: 14px; margin: 12px 0; border: none;
+            border-radius: 60px; background: rgba(255,255,255,0.08); color: white;
             text-align: center; font-size: 1rem;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .modal-header {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+        .modal-step {
+            color: #dcd4ff;
+            font-size: 0.95rem;
+            opacity: 0.88;
+            margin: 0;
         }
         .recording-status { font-size: 1.8rem; margin: 20px 0; }
         .countdown { font-size: 4rem; font-weight: bold; color: #ffd966; }
+
+        .recording-preview {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 18px;
+            text-align: left;
+        }
+        .recording-preview .preview-label {
+            font-size: 0.95rem;
+            color: #f8f0c5;
+            font-weight: 600;
+        }
+        .preview-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            border-radius: 24px;
+            overflow: hidden;
+            background: #0b0a17;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04);
+        }
+        .preview-wrapper::after {
+            content: 'LIVE';
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(234, 88, 12, 0.92);
+            color: white;
+            font-size: 0.78rem;
+            letter-spacing: 0.05em;
+            z-index: 2;
+        }
+        #previewVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+            filter: brightness(0.95);
+            transform: scaleX(-1);
+        }
 
         .match-indicator {
             position: absolute; bottom: 22px; left: 16px; right: 16px;
@@ -218,8 +346,11 @@
 
 <div class="app-container">
     <div class="header">
-        <h1>✋🏽🤚🏽 Gesture AI</h1>
-        <div class="badge">⚡ 35+ نقطة · تتبع مزدوج · اكتشاف متعدد</div>
+        <div class="title-row">
+            <h1>✋🏽 Gesture AI</h1>
+            <span class="badge">⚡ 35+ نقطة · تتبع مزدوج · اكتشاف متعدد</span>
+        </div>
+        <p class="subheader">Made by Yahya & Nouran Mohammad Atwa.</p>
     </div>
     <div class="camera-section">
         <div class="camera-wrapper">
@@ -240,7 +371,7 @@
             <span id="gestureCount" style="font-size:0.9rem;">(0)</span>
         </div>
         <div id="gesturesList" class="gestures-list">
-            <div class="empty-state">✨ اضغط + لإضافة أول إيماءة</div>
+            <div class="empty-state">✨ اضغط + لإضافة أول إيماءة ثم قرب يدك أمام الكاميرا</div>
         </div>
     </div>
 </div>
@@ -248,18 +379,29 @@
 <!-- Modal -->
 <div id="addModal" class="modal">
     <div class="modal-content">
-        <h3>✍️ إيماءة جديدة</h3>
+        <div class="modal-header">
+            <div>
+                <h3>✍️ إيماءة جديدة</h3>
+                <p class="modal-step">الخطوة 1 من 2 – أدخل اسم الإيماءة والأمر ثم سجّلها عبر الكاميرا.</p>
+            </div>
+        </div>
         <input type="text" id="gestureName" placeholder="اسم الإيماءة" value="">
         <input type="text" id="gestureCommand" placeholder="النطق (أمر)" value="">
+        <div class="recording-preview">
+            <div class="preview-label">🎥 معاينة الفيديو أثناء التسجيل</div>
+            <div class="preview-wrapper">
+                <video id="previewVideo" autoplay playsinline muted></video>
+            </div>
+        </div>
         <div id="recordingArea">
-            <div class="recording-status">👋 أظهر الإيماءة</div>
+            <div class="recording-status">👋 أظهر الإيماءة أمام الكاميرا</div>
             <button class="btn btn-primary" id="startRecordingBtn">🎬 ابدأ التسجيل</button>
         </div>
         <div id="countdownArea" style="display: none;">
             <div class="countdown" id="countdownNumber">3</div>
-            <p>ثبّت يدك الآن...</p>
+            <p>ثبّت يدك الآن أمام الكاميرا حتى يتم حفظ الإيماءة.</p>
         </div>
-        <button class="btn btn-danger" id="closeModalBtn" style="margin-top: 16px;">إلغاء</button>
+        <button class="btn btn-secondary" id="closeModalBtn" style="margin-top: 16px;">إلغاء</button>
     </div>
 </div>
 
@@ -302,6 +444,7 @@
         const countdownNumber = document.getElementById('countdownNumber');
         const gestureNameInput = document.getElementById('gestureName');
         const gestureCommandInput = document.getElementById('gestureCommand');
+        const previewVideoEl = document.getElementById('previewVideo');
         const matchIndicator = document.getElementById('matchIndicator');
         const handsCountBadge = document.getElementById('handsCountBadge');
         
@@ -899,7 +1042,13 @@
                     video: { facingMode: "user", width: { ideal: 800 }, height: { ideal: 600 } } 
                 });
                 videoEl.srcObject = stream;
-                await videoEl.play();
+                if (previewVideoEl) {
+                    previewVideoEl.srcObject = stream;
+                }
+                await Promise.all([
+                    videoEl.play().catch(() => {}),
+                    previewVideoEl ? previewVideoEl.play().catch(() => {}) : Promise.resolve()
+                ]);
                 return true;
             } catch(e) { showToast("❌ فشل الوصول للكاميرا"); return false; }
         }
